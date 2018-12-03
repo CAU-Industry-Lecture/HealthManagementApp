@@ -1,7 +1,7 @@
 package DB;
 
 public class Exercise {
-    // PK
+    private int exe_idx;
     private String exe_name;
     private String exe_cate;
     private String exe_cal;
@@ -9,7 +9,7 @@ public class Exercise {
     private int count_all;
     private int count_now;
 
-
+    public int getExe_idx() { return exe_idx; }
     public String getExe_name() {
         return exe_name;
     }
@@ -28,6 +28,8 @@ public class Exercise {
     public int getCount_now() {
         return count_now;
     }
+
+    public void setExe_idx(int exe_idx) { this.exe_idx = exe_idx;}
     public void setExe_name(String exe_name) {
         this.exe_name = exe_name;
     }
