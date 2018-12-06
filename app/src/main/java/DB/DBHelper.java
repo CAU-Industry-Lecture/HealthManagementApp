@@ -52,12 +52,11 @@ public class DBHelper extends SQLiteOpenHelper {
         sb = new StringBuffer();
         sb.append(" CREATE TABLE SCHEDULE ( ");
         sb.append(" sch_idx INTEGER PRIMARY KEY AUTOINCREMENT, ");
-        sb.append(" exe_idx_fk INTEGER");
+        sb.append(" exe_idx_fk INTEGER,");
         sb.append(" day TEXT, ");
         sb.append(" date TEXT, ");
-        sb.append(" isSuccess TINYINT(1)");
-        sb.append(" count_all INTEGER");
-        sb.append(" count_now INTEGER");
+        sb.append(" isSuccess TINYINT(1),");
+        sb.append(" time INTEGER,");
         sb.append(" FOREIGN KEY (exe_idx_fk) REFERENCES EXERCISE(exe_idx)) ");
 
 
@@ -81,16 +80,16 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public void addExerciseData() {
 
-        String[] exename = {"데드리프트", "스쿼트"};
-        String[] execate = {"하체", "하체"};
-        String[] execal = {"350", "360"};
+        String[] exename = {"걷기", "달리기", "자전거", "줄넘기", "수영", "벤치프레스", "싯업", "스쿼트", "데드리프트", "레그프레스"};
+        String[] execate = {"유산소", "유산소", "유산소", "유산소", "유산소", "근육운동", "근육운동", "근육운동", "근육운동", "근육운동"};
+        String[] execal = {"200", "500", "400", "700", "500", "12", "12", "12", "12", "12"};
         StringBuffer sb;
 
         // 1. 쓸 수 있는 DB 객체를 가져온다.
         SQLiteDatabase instance = getWritableDatabase();
 
         // 2. 운동 Data를 Insert한다.
-        for(int i = 0 ; i < 2 ; i++){
+        for(int i = 0 ; i < 10 ; i++){
             sb = new StringBuffer();
             sb.append(" INSERT INTO EXERCISE ( ");
             sb.append(" exe_name, exe_cate, exe_cal, interest) ");
@@ -105,6 +104,103 @@ public class DBHelper extends SQLiteOpenHelper {
         instance.close();
     }
 
+    public void setScheduleIsSuccess(int sch_idx, int isSuccess) {
+        StringBuffer sb;
+
+        SQLiteDatabase db = getWritableDatabase();
+
+        sb = new StringBuffer();
+        sb.append(" UPDATE SCHEDULE SET isSuccess = ? WHERE sch_idx = ? ");
+
+        try{
+            db.execSQL(sb.toString(), new Object[]{isSuccess, sch_idx});
+            Log.d("t","생성완료");
+        } catch (Exception e){
+            Log.d("t","오류");
+        }
+
+        db.close();
+    }
+
+    public void addScheduleData(String exe_name, String day, String date, int time){
+        StringBuffer sb;
+
+        SQLiteDatabase db = getWritableDatabase();
+
+        sb = new StringBuffer();
+        sb.append(" SELECT exe_idx FROM EXERCISE WHERE exe_name = '" + exe_name + "'");
+
+        Cursor cursor = db.rawQuery(sb.toString(), null);
+        cursor.moveToFirst();
+        int exe_idx_fk = cursor.getInt(cursor.getColumnIndex("exe_idx"));
+
+        sb = new StringBuffer();
+        sb.append(" INSERT INTO SCHEDULE ( ");
+        sb.append(" exe_idx_fk, day, date, isSuccess, time) ");
+        sb.append(" VALUES (?, ?, ?, ?, ?) ");
+        try{
+            db.execSQL(sb.toString(), new Object[]{exe_idx_fk, day, date, 0, time});
+            Log.d("t","생성완료");
+        } catch (Exception e){
+            Log.d("t","오류");
+        }
+        db.close();
+    }
+
+    public List<List> getAllScheduleData() {
+        StringBuffer sb = new StringBuffer();
+        sb.append(" SELECT * FROM EXERCISE JOIN SCHEDULE ON(EXERCISE.exe_idx = SCHEDULE.exe_idx_fk)");
+//        sb.append(" SELECT * FROM EXERCISE NATURAL JOIN SCHEDULE");
+        // 읽기 전용 DB 객체를 만든다.
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(sb.toString(), null);
+        List Info = new ArrayList();
+        Schedule schedule = null;
+        Exercise exercise = null;
+        // moveToNext 다음에 데이터가 있으면 true 없으면 false
+        while (cursor.moveToNext()) {
+            schedule = new Schedule();
+            exercise = new Exercise();
+            schedule.setSch_idx(cursor.getInt(cursor.getColumnIndex("sch_idx")));
+            schedule.setExe_idx_fk(cursor.getInt(cursor.getColumnIndex("exe_idx_fk")));
+            schedule.setDay(cursor.getString(cursor.getColumnIndex("day")));
+            schedule.setDate(cursor.getString(cursor.getColumnIndex("date")));
+            schedule.setIsSuccess(cursor.getInt(cursor.getColumnIndex("isSuccess")));
+            schedule.settime(cursor.getInt(cursor.getColumnIndex("time")));
+            exercise.setExe_name(cursor.getString(cursor.getColumnIndex("exe_name")));
+            List pack = new ArrayList<>();
+            pack.add(schedule);
+            pack.add(exercise);
+            Info.add(pack);
+        }
+
+        return Info;
+    }
+
+    public List<Schedule> getAllScheduleDataByDate(String date) {
+        StringBuffer sb = new StringBuffer();
+        sb.append(" SELECT * FROM EXERCISE JOIN SCHEDULE ON(EXERCISE.exe_idx = SCHEDULE.exe_idx_fk) WHERE date = '" + date + "';");
+
+        // 읽기 전용 DB 객체를 만든다.
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(sb.toString(), null);
+        List Info = new ArrayList();
+        Schedule schedule = null;
+
+        // moveToNext 다음에 데이터가 있으면 true 없으면 false
+        while (cursor.moveToNext()) {
+            schedule = new Schedule();
+            schedule.setExe_idx_fk(cursor.getInt(0));
+            schedule.setDay(cursor.getString(1));
+            schedule.setDate(cursor.getString(2));
+            schedule.setIsSuccess(cursor.getInt(3));
+            schedule.settime(cursor.getInt(4));
+
+            Info.add(schedule);
+        }
+
+        return Info;
+    }
 
     public List getAllExerciseData() {
         StringBuffer sb = new StringBuffer();

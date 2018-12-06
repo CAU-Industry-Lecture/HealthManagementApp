@@ -249,6 +249,9 @@ public class CalendarView extends LinearLayout
 
 	private class CalendarAdapter extends ArrayAdapter<Date>
 	{
+
+		private DBHelper dbHelper = new DBHelper( context, "capstone", null, 1);
+
 		// days with events
 		private HashSet<Date> eventDays;
 
@@ -256,15 +259,6 @@ public class CalendarView extends LinearLayout
 		private LayoutInflater inflater;
 //		List scheduleData = dbHelper.getAllScheduleData();
 		Exercise testEx = null;
-		Schedule textSch1 = new Schedule(1, 1, "월", "2018-11-26", "0",0,0);
-		Schedule textSch2 = new Schedule(1, 1, "월", "2018-11-27", "0",0,0);
-		Schedule textSch3 = new Schedule(1, 1, "월", "2018-11-28", "0",0,0);
-		Schedule textSch4 = new Schedule(1, 1, "월", "2018-11-29", "0",0,0);
-		Schedule textSch5 = new Schedule(1, 1, "월", "2018-11-26", "1",0,0);
-		Schedule textSch6 = new Schedule(1, 1, "월", "2018-11-26", "0",0,0);
-
-		List testData = new ArrayList();
-		List scheduleData = new ArrayList();
 
 		int []isSuccess = new int[4]; // 성공여부
 
@@ -273,30 +267,6 @@ public class CalendarView extends LinearLayout
 			super(context, R.layout.item, days);
 			this.eventDays = eventDays;
 			inflater = LayoutInflater.from(context);
-//			dbHelper = new DBHelper( context, "capstone", null, 1);
-			testData.add(testEx);
-			testData.add(textSch1);
-			scheduleData.add(testData);
-			testData = new ArrayList();
-			testData.add(testEx);
-			testData.add(textSch2);
-			scheduleData.add(testData);
-			testData = new ArrayList();
-			testData.add(testEx);
-			testData.add(textSch3);
-			scheduleData.add(testData);
-			testData = new ArrayList();
-			testData.add(testEx);
-			testData.add(textSch4);
-			scheduleData.add(testData);
-			testData = new ArrayList();
-			testData.add(testEx);
-			testData.add(textSch5);
-			scheduleData.add(testData);
-			testData = new ArrayList();
-			testData.add(testEx);
-			testData.add(textSch6);
-			scheduleData.add(testData);
 		}
 
 		@Override
@@ -310,7 +280,7 @@ public class CalendarView extends LinearLayout
 			int cnt = 0 ; // 하루에 등록된 운동이 몇개인지
 			// today
 			Date today = new Date();
-			List thisSchedule = new ArrayList<Schedule>();
+			List thisSchedule = new ArrayList<>();
 
 			// inflate item if it does not exist yet
 			if (view == null)
@@ -332,9 +302,10 @@ public class CalendarView extends LinearLayout
 					}
 				}
 
-				for (Object datas : scheduleData) {
-					Schedule schData = (Schedule)(((List)datas).get(1));
-					String dates = schData.getDate();
+				List allScheduleData = dbHelper.getAllScheduleData();
+				for (Object datas : allScheduleData) { //dbHelper.getAllScheduleData()
+					List schData = (List)(datas);
+					String dates = ((Schedule)schData.get(0)).getDate();
 					String []scheduleDate = dates.split("-"); // 0 : year, 1 : month, 2 : day
 					if(year == Integer.parseInt(scheduleDate[0])-1900 && month == Integer.parseInt(scheduleDate[1])-1 && day == Integer.parseInt(scheduleDate[2])) {
 						cnt++;

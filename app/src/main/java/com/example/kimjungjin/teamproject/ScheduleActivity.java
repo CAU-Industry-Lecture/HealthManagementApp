@@ -2,7 +2,9 @@ package com.example.kimjungjin.teamproject;
 
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -28,8 +30,14 @@ import java.util.List;
 import DB.DBHelper;
 import DB.Schedule;
 
+/*
+TODO : 성공여부 바꿨을 때 실시간 적용 안됨. 
+ */
 
 public class ScheduleActivity extends Activity {
+	private DBHelper dbHelper;
+	AlertDialog.Builder alertDialogBuilder;
+	int sch_idx = 0 ; // 리스트 뷰 클릭 후 다이얼로그에서 어떤 리스트를 클릭했는 지(어떤 운동인지)를 식별하기 위해
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -37,11 +45,49 @@ public class ScheduleActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_schedule);
 
+		dbHelper = new DBHelper( ScheduleActivity.this, "capstone", null, 1);
+
+		dbHelper.addScheduleData("데드리프트", "목", "2018-12-06", 10);
+		dbHelper.addScheduleData("스쿼트", "목", "2018-12-06", 10);
+		dbHelper.addScheduleData("데드리프트", "금", "2018-12-07", 10);
+		dbHelper.addScheduleData("데드리프트", "토", "2018-12-08", 10);
 		HashSet<Date> events = new HashSet<>();
 		events.add(new Date());
 
 		CalendarView cv = ((CalendarView)findViewById(R.id.calendar_view));
 		cv.updateCalendar(events);
+		alertDialogBuilder = new AlertDialog.Builder(ScheduleActivity.this);
+		// 제목셋팅
+		alertDialogBuilder.setTitle("성공여부 확인");
+
+		// AlertDialog 셋팅
+		alertDialogBuilder.setMessage("이 운동을 수행하셨습니까?")
+						  .setCancelable(false)
+						  .setPositiveButton("네",
+			new DialogInterface.OnClickListener() {
+				public void onClick(
+						DialogInterface dialog, int id) {
+					// 프로그램을 종료한다
+//					ScheduleActivity.this.finish();
+					/*
+					TODO : 스케쥴에서 isSuccess를 "1"로 체크, listview update
+					 */
+					dbHelper.setScheduleIsSuccess(sch_idx, 1);
+				}
+			})
+			.setNegativeButton("아니요",
+					new DialogInterface.OnClickListener() {
+						public void onClick(
+								DialogInterface dialog, int id) {
+							// 다이얼로그를 취소한다
+//							dialog.cancel();
+							/*
+							TODO : 스케쥴에서 isSuccess를 "0"으로 체크, listview update
+							 */
+							dbHelper.setScheduleIsSuccess(sch_idx, 0);
+						}
+					});
+
 
 		cv.grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
@@ -56,8 +102,9 @@ public class ScheduleActivity extends Activity {
 				int achieve_cnt = 0 ; // 달성률
 
 				for(int i = 0 ; i < listCnt ; i++){
-					Schedule tmpSch = (Schedule)hidden_list.getAdapter().getItem(i);
-					if(tmpSch.getIsSuccess().equals("1")){
+					List listData = (List)hidden_list.getAdapter().getItem(i);
+					Schedule tmpSch = (Schedule)listData.get(0);
+					if(tmpSch.getIsSuccess() == 1){
 						achieve_cnt++;
 					}
 					hidden_itmes.add(tmpSch);
@@ -70,6 +117,17 @@ public class ScheduleActivity extends Activity {
 				achieve_list.setAdapter(adapter);
 			}
 		});
+
+		((ListView)findViewById(R.id.achieve_list)).setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				AlertDialog alertDialog = alertDialogBuilder.create();
+				Schedule schedule = (Schedule)parent.getItemAtPosition(position);
+				sch_idx = schedule.getSch_idx();
+ 				alertDialog.show();
+			}
+		});
+
 		// assign event handler
 		cv.setEventHandler(new CalendarView.EventHandler()
 		{
@@ -137,9 +195,19 @@ public class ScheduleActivity extends Activity {
 				convertView = inflater.inflate(R.layout.day_item, parent, false);
 			}
 
-			TextView day_item =(TextView)convertView.findViewById(R.id.day_item);
+			TextView day_item = (TextView)convertView.findViewById(R.id.day_item);
+			TextView day_count = (TextView)convertView.findViewById(R.id.day_count);
+			TextView day_isSuccess = (TextView)convertView.findViewById(R.id.day_isSuccess);
+
 			Schedule dataSet = data.get(position);
-			day_item.setText(dataSet.getIsSuccess());
+			day_item.setText(Integer.toString(dataSet.getExe_idx_fk())); // 나중에 JOIN 해서 운동이름 가져오기
+			day_count.setText(Integer.toString(dataSet.gettime()));
+			if(dataSet.getIsSuccess() == 1){
+				day_isSuccess.setText("성공");
+			} else {
+				day_isSuccess.setText("미성공");
+			}
+
 			return convertView;
 		}
 	}
