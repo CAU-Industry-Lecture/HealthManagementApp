@@ -55,16 +55,11 @@ public class DBHelper extends SQLiteOpenHelper {
         sb.append(" exe_idx_fk INTEGER");
         sb.append(" day TEXT, ");
         sb.append(" date TEXT, ");
+        sb.append(" isSuccess TINYINT(1)");
+        sb.append(" count_all INTEGER");
+        sb.append(" count_now INTEGER");
         sb.append(" FOREIGN KEY (exe_idx_fk) REFERENCES EXERCISE(exe_idx)) ");
 
-        // EXERCISE_SCHEDULE 관계 테이블 생성
-        sb = new StringBuffer();
-        sb.append(" CREATE TABLE EXERCISE_SCHEDULE ( ");
-        sb.append(" sch_idx INTEGER ");
-        sb.append(" exe_idx INTEGER ");
-        sb.append(" isSuccess TINYINT(1)");
-        sb.append(" FOREIGN KEY (sch_idx) REFERENCES SCHEDULE(sch_idx)");
-        sb.append(" FOREIGN KEY (exe_idx) REFERENCES EXERCISE(exe_idx))");
 
         try{
             db.execSQL(sb.toString());
@@ -132,6 +127,25 @@ public class DBHelper extends SQLiteOpenHelper {
             Info.add(exercise);
         }
 
+        return Info;
+    }
+
+    public ArrayList<String> getAllExerciseName() {
+        StringBuffer sb = new StringBuffer();
+        sb.append(" SELECT exe_name FROM EXERCISE WHERE interest =" + "'" + "NO" + "'");
+
+        // 읽기 전용 DB 객체를 만든다.
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(sb.toString(), null);
+        ArrayList<String> Info = new ArrayList<String>();
+        Exercise exercise = null;
+
+        // moveToNext 다음에 데이터가 있으면 true 없으면 false
+        while (cursor.moveToNext()) {
+            exercise = new Exercise();
+            exercise.setExe_name(cursor.getString(0));
+            Info.add(exercise.getExe_name());
+        }
         return Info;
     }
 

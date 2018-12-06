@@ -256,12 +256,12 @@ public class CalendarView extends LinearLayout
 		private LayoutInflater inflater;
 //		List scheduleData = dbHelper.getAllScheduleData();
 		Exercise testEx = null;
-		Schedule textSch1 = new Schedule(1, 1, "월", "2018-11-26", "0");
-		Schedule textSch2 = new Schedule(1, 1, "월", "2018-11-27", "0");
-		Schedule textSch3 = new Schedule(1, 1, "월", "2018-11-28", "0");
-		Schedule textSch4 = new Schedule(1, 1, "월", "2018-11-29", "0");
-		Schedule textSch5 = new Schedule(1, 1, "월", "2018-11-26", "1");
-		Schedule textSch6 = new Schedule(1, 1, "월", "2018-11-26", "0");
+		Schedule textSch1 = new Schedule(1, 1, "월", "2018-11-26", "0",0,0);
+		Schedule textSch2 = new Schedule(1, 1, "월", "2018-11-27", "0",0,0);
+		Schedule textSch3 = new Schedule(1, 1, "월", "2018-11-28", "0",0,0);
+		Schedule textSch4 = new Schedule(1, 1, "월", "2018-11-29", "0",0,0);
+		Schedule textSch5 = new Schedule(1, 1, "월", "2018-11-26", "1",0,0);
+		Schedule textSch6 = new Schedule(1, 1, "월", "2018-11-26", "0",0,0);
 
 		List testData = new ArrayList();
 		List scheduleData = new ArrayList();

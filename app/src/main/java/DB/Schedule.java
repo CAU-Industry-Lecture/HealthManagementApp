@@ -9,14 +9,18 @@ public class Schedule {
     private int exe_idx_fk;
     private String day;
     private String date;
-    private String time;
+    private String isSuccess;
+    private int count_all;
+    private int count_now;
 
-    public Schedule(int sch_idx, int exe_idx_fk, String day, String date, String time) {
+    public Schedule(int sch_idx, int exe_idx_fk, String day, String date, String isSuccess, int count_all, int count_now) {
         this.sch_idx = sch_idx;
         this.exe_idx_fk = exe_idx_fk;
         this.day = day;
         this.date = date;
-        this.time = time;
+        this.isSuccess = isSuccess;
+        this.count_all = count_all;
+        this.count_now = count_now;
     }
 
     public void setSch_idx(int sch_idx) {
@@ -33,7 +37,7 @@ public class Schedule {
         this.date = date;
     }
 
-    public void setTime(String time) { this.time = time; }
+    public void setIsSuccess(String isSuccess) { this.isSuccess = isSuccess; }
 
     public int getSch_idx() {
         return sch_idx;
@@ -47,6 +51,22 @@ public class Schedule {
 
     public String getDate() {return date;}
 
-    public String getTime() { return time; }
+    public String getIsSuccess() { return isSuccess; }
+
+    public int getCount_all() {
+        return count_all;
+    }
+
+    public void setCount_all(int count_all) {
+        this.count_all = count_all;
+    }
+
+    public int getCount_now() {
+        return count_now;
+    }
+
+    public void setCount_now(int count_now) {
+        this.count_now = count_now;
+    }
 
 }
