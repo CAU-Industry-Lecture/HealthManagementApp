@@ -177,26 +177,31 @@ public class DBHelper extends SQLiteOpenHelper {
         return Info;
     }
 
-    public List<Schedule> getAllScheduleDataByDate(String date) {
+    public List<List> getAllScheduleDataByDate(String date) {
         StringBuffer sb = new StringBuffer();
-        sb.append(" SELECT * FROM EXERCISE JOIN SCHEDULE ON(EXERCISE.exe_idx = SCHEDULE.exe_idx_fk) WHERE date = '" + date + "';");
+        sb.append(" SELECT * FROM EXERCISE JOIN SCHEDULE ON(EXERCISE.exe_idx = SCHEDULE.exe_idx_fk) WHERE date = '" + date + "'");
 
         // 읽기 전용 DB 객체를 만든다.
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery(sb.toString(), null);
-        List Info = new ArrayList();
+        ArrayList Info = new ArrayList();
         Schedule schedule = null;
-
+        Exercise exercise = null;
         // moveToNext 다음에 데이터가 있으면 true 없으면 false
         while (cursor.moveToNext()) {
             schedule = new Schedule();
-            schedule.setExe_idx_fk(cursor.getInt(0));
-            schedule.setDay(cursor.getString(1));
-            schedule.setDate(cursor.getString(2));
-            schedule.setIsSuccess(cursor.getInt(3));
-            schedule.settime(cursor.getInt(4));
-
-            Info.add(schedule);
+            exercise = new Exercise();
+            schedule.setSch_idx(cursor.getInt(cursor.getColumnIndex("sch_idx")));
+            schedule.setExe_idx_fk(cursor.getInt(cursor.getColumnIndex("exe_idx_fk")));
+            schedule.setDay(cursor.getString(cursor.getColumnIndex("day")));
+            schedule.setDate(cursor.getString(cursor.getColumnIndex("date")));
+            schedule.setIsSuccess(cursor.getInt(cursor.getColumnIndex("isSuccess")));
+            schedule.settime(cursor.getInt(cursor.getColumnIndex("time")));
+            exercise.setExe_name(cursor.getString(cursor.getColumnIndex("exe_name")));
+            List pack = new ArrayList<>();
+            pack.add(schedule);
+            pack.add(exercise);
+            Info.add(pack);
         }
 
         return Info;
@@ -264,6 +269,29 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         return Info;
     }
+
+    public ArrayList<String> getInterestExerciseName2() {
+        StringBuffer sb = new StringBuffer();
+        sb.append(" SELECT exe_name, exe_cal FROM EXERCISE WHERE interest =" + "'" + "YES" + "'" );
+
+        // 읽기 전용 DB 객체를 만든다.
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(sb.toString(), null);
+        ArrayList<String> Info = new ArrayList<String>();
+        Exercise exercise = null;
+
+        // moveToNext 다음에 데이터가 있으면 true 없으면 false
+        while (cursor.moveToNext()) {
+            exercise = new Exercise();
+            exercise.setExe_name(cursor.getString(0));
+            exercise.setExe_cal(cursor.getString(1));
+            if(Integer.parseInt(exercise.getExe_cal()) != 12)
+                Info.add(exercise.getExe_name());
+        }
+        return Info;
+    }
+
+    
 
     public void updateInterest( String exe_name , String interest){
         // 1이면 YES로 업데이트

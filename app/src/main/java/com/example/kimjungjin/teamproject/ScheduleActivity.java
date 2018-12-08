@@ -28,17 +28,16 @@ import java.util.HashSet;
 import java.util.List;
 
 import DB.DBHelper;
+import DB.Exercise;
 import DB.Schedule;
-
-/*
-TODO : 성공여부 바꿨을 때 실시간 적용 안됨. 
- */
 
 public class ScheduleActivity extends Activity {
 	private DBHelper dbHelper;
 	AlertDialog.Builder alertDialogBuilder;
 	int sch_idx = 0 ; // 리스트 뷰 클릭 후 다이얼로그에서 어떤 리스트를 클릭했는 지(어떤 운동인지)를 식별하기 위해
-
+	ListviewAdapter adapter;
+	ListView achieve_list;
+	String clickedDate; // 리스트 뷰 클릭 후 다이얼로그에서 어떤 리스트를 클릭했는 지를 식별하기 위해
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -47,10 +46,11 @@ public class ScheduleActivity extends Activity {
 
 		dbHelper = new DBHelper( ScheduleActivity.this, "capstone", null, 1);
 
-		dbHelper.addScheduleData("데드리프트", "목", "2018-12-06", 10);
-		dbHelper.addScheduleData("스쿼트", "목", "2018-12-06", 10);
-		dbHelper.addScheduleData("데드리프트", "금", "2018-12-07", 10);
-		dbHelper.addScheduleData("데드리프트", "토", "2018-12-08", 10);
+//		dbHelper.addScheduleData("데드리프트", "목", "2018-12-06", 10);
+//		dbHelper.addScheduleData("스쿼트", "목", "2018-12-06", 10);
+//		dbHelper.addScheduleData("데드리프트", "금", "2018-12-07", 10);
+//		dbHelper.addScheduleData("데드리프트", "토", "2018-12-08", 10);
+
 		HashSet<Date> events = new HashSet<>();
 		events.add(new Date());
 
@@ -73,6 +73,7 @@ public class ScheduleActivity extends Activity {
 					TODO : 스케쥴에서 isSuccess를 "1"로 체크, listview update
 					 */
 					dbHelper.setScheduleIsSuccess(sch_idx, 1);
+					reloadAllData(clickedDate);
 				}
 			})
 			.setNegativeButton("아니요",
@@ -85,6 +86,7 @@ public class ScheduleActivity extends Activity {
 							TODO : 스케쥴에서 isSuccess를 "0"으로 체크, listview update
 							 */
 							dbHelper.setScheduleIsSuccess(sch_idx, 0);
+							reloadAllData(clickedDate);
 						}
 					});
 
@@ -93,27 +95,29 @@ public class ScheduleActivity extends Activity {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				Date date = (Date)parent.getAdapter().getItem(position);
-				((TextView)findViewById(R.id.date)).setText(date.getYear()+1900 + " " + (date.getMonth()+1) + " " + date.getDate());
+				int year = date.getYear() + 1900;
+				int month = date.getMonth() + 1;
+				int day = date.getDate();
+				String yyyymmdd = year + "-" + month + "-" + day;
 
-				ArrayList hidden_itmes = new ArrayList<Schedule>();
-				//((LinearLayout)view.findViewById(R.id.item_layout)).setBackgroundResource(R.drawable.grid_border);
-				ListView hidden_list = (ListView)view.findViewById(R.id.hidden_list);
-				int listCnt = hidden_list.getAdapter().getCount();
+				((TextView)findViewById(R.id.date)).setText(yyyymmdd);
+
+				List schData = dbHelper.getAllScheduleDataByDate(yyyymmdd);
+				int listCnt = schData.size();
 				int achieve_cnt = 0 ; // 달성률
 
+				clickedDate = yyyymmdd;
+
 				for(int i = 0 ; i < listCnt ; i++){
-					List listData = (List)hidden_list.getAdapter().getItem(i);
-					Schedule tmpSch = (Schedule)listData.get(0);
-					if(tmpSch.getIsSuccess() == 1){
+					if(((Schedule)((List)schData.get(i)).get(0)).getIsSuccess() == 1){
 						achieve_cnt++;
 					}
-					hidden_itmes.add(tmpSch);
 				}
 
 				TextView achieve = (TextView)findViewById(R.id.achieve);
 				achieve.setText((int)(((double)achieve_cnt/(double)listCnt)*100) + "%");
-				ListView achieve_list = (ListView)findViewById(R.id.achieve_list);
-				ListviewAdapter adapter = new ListviewAdapter(hidden_itmes);
+				achieve_list = (ListView)findViewById(R.id.achieve_list);
+				adapter = new ListviewAdapter(schData);
 				achieve_list.setAdapter(adapter);
 			}
 		});
@@ -122,7 +126,7 @@ public class ScheduleActivity extends Activity {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				AlertDialog alertDialog = alertDialogBuilder.create();
-				Schedule schedule = (Schedule)parent.getItemAtPosition(position);
+				Schedule schedule = (Schedule)((List)parent.getItemAtPosition(position)).get(0);
 				sch_idx = schedule.getSch_idx();
  				alertDialog.show();
 			}
@@ -141,6 +145,21 @@ public class ScheduleActivity extends Activity {
 		});
 	}
 
+	public void reloadAllData(String yyyymmdd) {
+		List<List> data = dbHelper.getAllScheduleDataByDate(yyyymmdd);
+		int listCnt = data.size();
+		int achieve_cnt = 0 ; // 달성률
+		for(int i = 0 ; i < listCnt ; i++){
+			if(((Schedule)((List)data.get(i)).get(0)).getIsSuccess() == 1){
+				achieve_cnt++;
+			}
+		}
+
+		TextView achieve = (TextView)findViewById(R.id.achieve);
+		achieve.setText((int)(((double)achieve_cnt/(double)listCnt)*100) + "%");
+		adapter = new ListviewAdapter(data);
+		achieve_list.setAdapter(adapter);
+	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
@@ -167,9 +186,8 @@ public class ScheduleActivity extends Activity {
 	}
 
 	private class ListviewAdapter extends BaseAdapter {
-		private ArrayList<Schedule> data = new ArrayList<>();
-
-		ListviewAdapter(ArrayList<Schedule> data){
+		private List<List> data;
+		ListviewAdapter(List<List> data){
 			this.data=data;
 		}
 		@Override
@@ -199,10 +217,10 @@ public class ScheduleActivity extends Activity {
 			TextView day_count = (TextView)convertView.findViewById(R.id.day_count);
 			TextView day_isSuccess = (TextView)convertView.findViewById(R.id.day_isSuccess);
 
-			Schedule dataSet = data.get(position);
-			day_item.setText(Integer.toString(dataSet.getExe_idx_fk())); // 나중에 JOIN 해서 운동이름 가져오기
-			day_count.setText(Integer.toString(dataSet.gettime()));
-			if(dataSet.getIsSuccess() == 1){
+			List dataSet = data.get(position);
+			day_item.setText(((Exercise)dataSet.get(1)).getExe_name()); // 나중에 JOIN 해서 운동이름 가져오기
+			day_count.setText(Integer.toString(((Schedule)dataSet.get(0)).gettime()));
+			if(((Schedule)dataSet.get(0)).getIsSuccess() == 1){
 				day_isSuccess.setText("성공");
 			} else {
 				day_isSuccess.setText("미성공");

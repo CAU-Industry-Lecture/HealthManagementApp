@@ -63,6 +63,7 @@ public class Exerciseregit extends AppCompatActivity
                 android.R.layout.simple_list_item_multiple_choice,
                 exercise
         );
+
         listView2.setAdapter(adapter2);
         listView2.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
         listView2.setOnItemClickListener(itemClickListenerOfLanguageList);
