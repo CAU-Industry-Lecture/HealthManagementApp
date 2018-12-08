@@ -13,9 +13,10 @@ public final class Calculator {
         calorieHash.put("수영", Integer.parseInt("500"));
     }
 
-    public static List<List<Map.Entry<String, Integer>>> getExercisePerformCounts(int dayLength, int totalCalories, List<String> exerciseNames) {
+    public static List<List<Map.Entry<String, Integer>>> getExercisePerformCounts(String weekString, int totalCalories, List<String> exerciseNames) {
         int firstExerciseIndex = 0;
         int secondExerciseIndex = 1;
+        int totalDays = Integer.parseInt(weekString.substring(0, 1)) * 7;
 
         List<List<Map.Entry<String, Integer>>> exercisePerformCounts = new ArrayList<>();
         List<Integer> minutesLossCalories = new ArrayList<>();
@@ -24,7 +25,7 @@ public final class Calculator {
             minutesLossCalories.add(calorieHash.get(exerciseName) / 60);
         }
 
-        for (int elapsedDay = 0; elapsedDay < dayLength; ++elapsedDay) {
+        for (int elapsedDay = 0; elapsedDay < totalDays; ++elapsedDay) {
             exercisePerformCounts.add(new ArrayList<Map.Entry<String, Integer>>());
 
             Map.Entry<Integer, Integer> exercisePerformCount
