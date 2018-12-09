@@ -3,6 +3,7 @@ package com.example.kimjungjin.teamproject;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.widget.AdapterView.OnItemClickListener;
 import android.os.Bundle;
 import android.view.View;
@@ -15,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,6 +36,7 @@ public class Exerciseregit extends AppCompatActivity
     private Button btnregitcancel;
     private Button btndelete;
     private Button btndeletecancel;
+    private ScrollView scrollView;
     Map<String, Integer> exerciseType = new HashMap<String, Integer>();
 
     @Override
@@ -47,7 +50,23 @@ public class Exerciseregit extends AppCompatActivity
         btnregitcancel = (Button)findViewById(R.id.btnRegitCancel);
         btndelete = (Button)findViewById(R.id.btndelete);
         btndeletecancel = (Button)findViewById(R.id.btndeletecancel);
+        scrollView = (ScrollView)findViewById(R.id.scrollView);
 
+        listView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                scrollView.requestDisallowInterceptTouchEvent(true);
+                return false;
+            }
+        });
+
+        listView2.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                scrollView.requestDisallowInterceptTouchEvent(true);
+                return false;
+            }
+        });
         dbHelper = new DBHelper( Exerciseregit.this, "capstone", null, 1);
         ArrayList<String> exercise2 = dbHelper.getInterestExerciseName();
         ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(

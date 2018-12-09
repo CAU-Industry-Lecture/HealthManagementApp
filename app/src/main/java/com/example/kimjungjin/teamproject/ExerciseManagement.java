@@ -205,8 +205,6 @@ public class ExerciseManagement extends AppCompatActivity {
         weight = preferences.getString("weight", null);
 
 
-        final ArrayList<String> exercise = dbHelper.getInterestExerciseName2();
-
         btnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -242,15 +240,18 @@ public class ExerciseManagement extends AppCompatActivity {
                         // datepicker 날짜 검증 토스트 띄우기
                         switch (str_purpose){
                             case "다이어트" :
+                                ArrayList<String> exercise2 = dbHelper.getInterestExerciseName2();
                                 cal = getLossCaloriesPerDay(sex, age, height, weight, str_killo);
                                 if( cal < 100 )
                                 {
                                     Toast.makeText(ExerciseManagement.this, "목표수치가 너무 낮습니다. 다시 설정해주세요", Toast.LENGTH_SHORT).show();
                                 } else if( Integer.parseInt(weight) < Integer.parseInt(str_killo) ){
                                     Toast.makeText(ExerciseManagement.this, "다이어트는 기존 몸무게보다 낮게 설정하셔야 합니다.", Toast.LENGTH_SHORT).show();
+                                } else if( exercise2.size() == 0){
+                                    Toast.makeText(ExerciseManagement.this, "관심운동을 등록해주세요.", Toast.LENGTH_SHORT).show();
                                 }
                                 else {
-                                    List<List<Map.Entry<String, Integer>>> test = getExercisePerformCounts(str_time, date.size(), cal, exercise);
+                                    List<List<Map.Entry<String, Integer>>> test = getExercisePerformCounts(str_time, date.size(), cal, exercise2);
                                     // date 정보(요일정보), datepicker의 시작정보를 가지고 스케쥴 생성하는 함수 하나 만들어서 넣기
                                     setSchedule(date, test, datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth());
                                     Toast.makeText(ExerciseManagement.this, Integer.toString(cal), Toast.LENGTH_SHORT).show();
@@ -263,6 +264,15 @@ public class ExerciseManagement extends AppCompatActivity {
                                 }
                                 break;
                             case "근육운동" :
+                                ArrayList<String> exercise = dbHelper.getInterestExerciseName();
+                                cal = getLossCaloriesPerDay(sex, age, height, weight, str_killo);
+                                setSchedule2(date, exercise, str_time, datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth());
+                                Toast.makeText(ExerciseManagement.this, Integer.toString(cal), Toast.LENGTH_SHORT).show();
+                                Intent intent = new Intent(ExerciseManagement.this, MainActivity.class);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                Toast.makeText(ExerciseManagement.this, date.toString(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(ExerciseManagement.this, "스케줄이 생성되었습니다.", Toast.LENGTH_SHORT).show();
+                                startActivity(intent);
                                 break;
                         }
                     }
@@ -278,6 +288,104 @@ public class ExerciseManagement extends AppCompatActivity {
             }
         });
 
+    }
+
+    public void setSchedule2(ArrayList<String> date, ArrayList<String> exercise, String weekString, int year, int month, int day){
+        Calendar calendar = new GregorianCalendar(Locale.KOREA);
+        calendar.set(year, month, day);
+        calendar.set(Calendar.MILLISECOND,0);
+
+        int totalDays = Integer.parseInt(weekString.substring(0, 1)) * date.size();
+
+        String schDay = "";
+        switch(calendar.get(Calendar.DAY_OF_WEEK)){
+            case 1 :
+                schDay = "일";
+                break;
+            case 2 :
+                schDay = "월";
+                break;
+            case 3 :
+                schDay = "화";
+                break;
+            case 4 :
+                schDay = "수";
+                break;
+            case 5 :
+                schDay = "목";
+                break;
+            case 6 :
+                schDay = "금";
+                break;
+            case 7 :
+                schDay = "토";
+                break;
+        }
+
+        int cnt = 0;
+        while(true){
+            if(date.contains(schDay)){
+                if(schDay.equals("월") && exercise.contains("벤치프레스")){
+                    dbHelper.addScheduleData("벤치프레스", schDay, (calendar.getTime().getYear() + 1900)
+                                    + "-" + (calendar.getTime().getMonth() + 1)
+                                    + "-" + calendar.getTime().getDate(),
+                            12);
+                } else if(schDay.equals("화") && exercise.contains("싯업")){
+                    dbHelper.addScheduleData("싯업", schDay, (calendar.getTime().getYear() + 1900)
+                                    + "-" + (calendar.getTime().getMonth() + 1)
+                                    + "-" + calendar.getTime().getDate(),
+                            12);
+                } else if(schDay.equals("수") && exercise.contains("스쿼트")){
+                    dbHelper.addScheduleData("스쿼트", schDay, (calendar.getTime().getYear() + 1900)
+                                    + "-" + (calendar.getTime().getMonth() + 1)
+                                    + "-" + calendar.getTime().getDate(),
+                            12);
+                } else if(schDay.equals("목") && exercise.contains("데드리프트")){
+                    dbHelper.addScheduleData("데드리프트", schDay, (calendar.getTime().getYear() + 1900)
+                                    + "-" + (calendar.getTime().getMonth() + 1)
+                                    + "-" + calendar.getTime().getDate(),
+                            12);
+                } else if(schDay.equals("금") && exercise.contains("싯업")){
+                    dbHelper.addScheduleData("싯업", schDay, (calendar.getTime().getYear() + 1900)
+                                    + "-" + (calendar.getTime().getMonth() + 1)
+                                    + "-" + calendar.getTime().getDate(),
+                            12);
+                } else if(schDay.equals("토") && exercise.contains("스쿼트")){
+                    dbHelper.addScheduleData("스쿼트", schDay, (calendar.getTime().getYear() + 1900)
+                                    + "-" + (calendar.getTime().getMonth() + 1)
+                                    + "-" + calendar.getTime().getDate(),
+                            12);
+                }
+                cnt++;
+            }
+            calendar.add(Calendar.DAY_OF_YEAR, 1);
+            switch(calendar.get(Calendar.DAY_OF_WEEK)){
+                case 1 :
+                    schDay = "일";
+                    break;
+                case 2 :
+                    schDay = "월";
+                    break;
+                case 3 :
+                    schDay = "화";
+                    break;
+                case 4 :
+                    schDay = "수";
+                    break;
+                case 5 :
+                    schDay = "목";
+                    break;
+                case 6 :
+                    schDay = "금";
+                    break;
+                case 7 :
+                    schDay = "토";
+                    break;
+            }
+
+            if(totalDays == cnt)
+                break;
+        }
     }
 
     public void setSchedule(ArrayList<String> date, List<List<Map.Entry<String, Integer>>> schedule, int year, int month, int day){

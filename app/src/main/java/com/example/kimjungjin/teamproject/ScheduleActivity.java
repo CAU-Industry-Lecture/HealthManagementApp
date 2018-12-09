@@ -218,8 +218,14 @@ public class ScheduleActivity extends Activity {
 			TextView day_isSuccess = (TextView)convertView.findViewById(R.id.day_isSuccess);
 
 			List dataSet = data.get(position);
-			day_item.setText(((Exercise)dataSet.get(1)).getExe_name()); // 나중에 JOIN 해서 운동이름 가져오기
-			day_count.setText(Integer.toString(((Schedule)dataSet.get(0)).gettime()));
+			day_item.setText(((Exercise)dataSet.get(1)).getExe_name());
+			if(day_item.getText().equals("걷기") || day_item.getText().equals("달리기") ||
+					day_item.getText().equals("자전거") || day_item.getText().equals("줄넘기")
+					|| day_item.getText().equals("수영")){
+				day_count.setText(Integer.toString(((Schedule)dataSet.get(0)).gettime())+ "분");
+			} else {
+				day_count.setText(Integer.toString(((Schedule)dataSet.get(0)).gettime())+ "x3세트");
+			}
 			if(((Schedule)dataSet.get(0)).getIsSuccess() == 1){
 				day_isSuccess.setText("성공");
 			} else {
