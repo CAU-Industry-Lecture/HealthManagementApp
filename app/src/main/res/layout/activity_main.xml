@@ -20,8 +20,10 @@
 
             <Button
                 android:id="@+id/btn1"
+                android:background="@drawable/btn1"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:textColor="#000080"
                 android:text="개인정보 등록" />
 
         </LinearLayout>
@@ -34,8 +36,10 @@
 
             <Button
                 android:id="@+id/btn2"
+                android:background="@drawable/btn1"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:textColor="#000080"
                 android:text="운동목표설정" />
 
         </LinearLayout>
@@ -56,8 +60,10 @@
 
             <Button
                 android:id="@+id/btn3"
+                android:background="@drawable/btn1"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:textColor="#000080"
                 android:text="운동등록" />
 
         </LinearLayout>
@@ -70,31 +76,13 @@
 
             <Button
                 android:id="@+id/btn4"
+                android:background="@drawable/btn1"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:textColor="#000080"
                 android:text="스케줄관리" />
 
         </LinearLayout>
     </LinearLayout>
-
-
-    <!--<Button-->
-        <!--android:id="@+id/btnSelectDB"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:text="DB Select" />-->
-
-    <!--<Button-->
-        <!--android:id="@+id/btnSingUp"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:text="개인정보입력" />-->
-
-    <!--<ListView-->
-        <!--android:id="@+id/lvPeople"-->
-        <!--android:visibility="invisible"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content" />-->
-
 
 </LinearLayout>
